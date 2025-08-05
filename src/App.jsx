@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import useOllamaHook from "./api/useOllamaHook";
 import MessageForm from "./components/MessageForm";
+import { useGlobal } from "./context/global-context";
 
 function App() {
+  const hook = useGlobal();
   const [messages, setMessages] = useState([]);
   const [waitingBot, setWaitingBot] = useState(false);
   const ollamaHook = useOllamaHook();
@@ -48,8 +50,14 @@ function App() {
     }
   }, [ollamaHook.response, ollamaHook.loading]);
 
+  useEffect(() => {
+    if (!messages.length) return;
+    const event = { type: "@current_chat", payload: messages };
+    hook.dispatch(event);
+  }, [messages, hook]);
+
   return (
-    <div className="min-h-screen bg-neutral-800 text-white flex flex-col">
+    <div className="min-h-screen bg-neutral-800 w-full text-white flex flex-col">
       <div className="w-full space-y-4">
         <h1 className="text-lg p-2">Clon ChatGPT</h1>
 
